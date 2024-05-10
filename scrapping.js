@@ -1,13 +1,11 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
-
 async function run() {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     
     await page.goto('https://www.la-spa.fr/adoption/');
-
 
     console.log('Page loaded');
     
@@ -25,55 +23,42 @@ async function run() {
         await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds
     }
 
-
     console.log('Scrolled down');
 
+    // number of animals 
+    let seeMoreActive = true;
+    let animalLinks = [];
+    let counter = 0;
+
+    while (seeMoreActive) {
+        // Try to click on the "Voir plus" button
+
+        counter++;
+        try {
+            await page.waitForSelector('.c-see-more_link', { timeout: 5000 });
+            await page.click('.c-see-more_link');
+
+            // Wait for the new content to load
+            await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds
+        } catch (error) {
+            // If the "Voir plus" button is not found, it means it's not active
+            seeMoreActive = false;
+        }
+
+        // Get the href of all <a> elements with a data-animal-id attribute
+        const newAnimalLinks = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.href));
+        animalLinks = [...animalLinks, ...newAnimalLinks];
 
 
-    // number of annimals 
-    const strongText = await page.$eval('.c-adoption-results_suptitle strong', element => element.textContent);
+        await page.screenshot({ path: `screenshot_${counter}.png` });
 
-    console.log('Strong text:', strongText);
+        console.log(animalLinks);
+        console.log('Number of animal links:', animalLinks.length);
 
+        const uniqueAnimalLinks = [...new Set(animalLinks)];
 
-
-    // Get the link for the annimal 
-
-    const animalLinks = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.href));
-
-
-    const uniqueAnimalLinks = [...new Set(animalLinks)];
-
-
-
-    console.log('Animal links:', uniqueAnimalLinks);
-
-
-    const url = await page.url();
-    console.log('URL:', url);
-
-
-
-    await page.waitForSelector('.c-see-more_link');
-    await page.click('.c-see-more_link');
-
-    console.log('See more clicked');
-
-    // Wait for 5 seconds
-    await new Promise(resolve => setTimeout(resolve, 5000));
-
-    const animalLinks2 = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.href));
-
-
-    console.log('Animal links:', animalLinks2);
-
-
-
-
-
-
-
-    await page.screenshot({ path: 'screenshot.png' });
+        fs.writeFileSync(`links${counter}.json`, JSON.stringify(uniqueAnimalLinks, null, 2));
+    }
 
     await browser.close();
 }
