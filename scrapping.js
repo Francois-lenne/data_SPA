@@ -50,9 +50,80 @@ async function run() {
         animalLinks = [...animalLinks, ...newAnimalLinks];
 
 
+
+
+        // get the id of the animals 
+        const animalIds = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-id')));
+
+        console.log('Animal IDs:', animalIds);
+
+        // get the especes of the animals
+
+        const animalRaces = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-race')));
+
+        console.log('Animal Race', animalRaces);
+
+
+
+        // get the names of the animals
+
+        const animalNames = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-nom')));
+
+
+        console.log('Animal Names', animalNames);
+
+
+        // get the gender of the animals
+
+        const animalGenders = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-gender')));
+
+        console.log('Animal Sex', animalGenders);
+
+
+        // get the age of the animals
+
+        const animalAges = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-age')));
+
+        console.log('Animal Age', animalAges);
+
+
+        // get the SOS of the animals 
+
+        const animalSos = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-sos')));
+
+        console.log('Animal SOS', animalSos);
+
+
+
+
+        // get the spacies of the animals
+
+        const animalSpecies = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-espece')));
+
+        console.log('Animal Species', animalSpecies);
+
+
+
+        // get the image of the animals
+
+
+        const animalImageLinks = await page.$$eval('a[data-animal-id] img', elements => elements.map(element => element.getAttribute('src')));
+
+        console.log('Animal Image Links', animalImageLinks);
+
+
+        // get the establishments of the animals 
+        
+
+        const animalEstablishments = await page.$$eval('a.f-miniAnimals_establishment span', elements => elements.map(element => element.textContent));
+
+        console.log('Animal Establishments', animalEstablishments);
+
+        // Take a screenshot
+
+
         await page.screenshot({ path: `screenshot_${counter}.png` });
 
-        console.log(animalLinks);
         console.log('Number of animal links:', animalLinks.length);
 
         const uniqueAnimalLinks = [...new Set(animalLinks)];
