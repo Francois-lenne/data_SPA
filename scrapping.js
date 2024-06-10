@@ -1,5 +1,24 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const parquet = require('parquetjs');
+
+console.log('Parquet:');
+
+
+// Define the schema of the Parquet file
+
+let schema = new parquet.ParquetSchema({
+  'ID': { type: 'INT64' },
+  'RACE': { type: 'UTF8' },
+  'NAMES': { type: 'UTF8' },
+  'SEX': { type: 'UTF8' },
+  'AGE': { type: 'UTF8' },
+  'SOS': { type: 'UTF8' },
+  'SPECIES': { type: 'UTF8' },
+  'IMAGE_LINKS': { type: 'UTF8' },
+  'ETABLISHMENTS': { type: 'UTF8' },
+  'DATE': { type: 'UTF8' },
+});
 
 async function run() {
     const browser = await puppeteer.launch();
