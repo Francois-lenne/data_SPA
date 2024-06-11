@@ -21,6 +21,16 @@ let schema = new parquet.ParquetSchema({
 });
 
 async function run() {
+
+    // create the parquet file 
+
+
+    const date_jour = new Date().toISOString().slice(0, 10);
+    let fileName = `animals_${date_jour}.parquet`;
+
+    let writer = await parquet.ParquetWriter.openFile(schema, fileName);
+
+
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     
@@ -147,7 +157,7 @@ async function run() {
 
         const uniqueAnimalLinks = [...new Set(animalLinks)];
 
-        fs.writeFileSync(`links${counter}.json`, JSON.stringify(uniqueAnimalLinks, null, 2));
+        fs.writeFileSync(`links$n{counter}.json`, JSON.stringify(uniqueAnimalLinks, null, 2));
     }
 
     await browser.close();
