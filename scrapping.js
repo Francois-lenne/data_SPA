@@ -1,34 +1,18 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-const parquet = require('parquetjs');
-
-console.log('Parquet:');
 
 
-// Define the schema of the Parquet file
-
-let schema = new parquet.ParquetSchema({
-  'ID': { type: 'INT64' },
-  'RACE': { type: 'UTF8' },
-  'NAMES': { type: 'UTF8' },
-  'SEX': { type: 'UTF8' },
-  'AGE': { type: 'UTF8' },
-  'SOS': { type: 'UTF8' },
-  'SPECIES': { type: 'UTF8' },
-  'IMAGE_LINKS': { type: 'UTF8' },
-  'ETABLISHMENTS': { type: 'UTF8' },
-  'DATE': { type: 'UTF8' },
-});
 
 async function run() {
 
-    // create the parquet file 
+    
+    // create the lists for save all the inormation of the animals
 
 
-    const date_jour = new Date().toISOString().slice(0, 10);
-    let fileName = `animals_${date_jour}.parquet`;
+    
+    
+    // Launch the browser
 
-    let writer = await parquet.ParquetWriter.openFile(schema, fileName);
 
 
     const browser = await puppeteer.launch();
@@ -57,6 +41,7 @@ async function run() {
     // number of animals 
     let seeMoreActive = true;
     let animalLinks = [];
+    let animalData = [];
     let counter = 0;
 
     while (seeMoreActive) {
@@ -148,16 +133,28 @@ async function run() {
 
         console.log('Animal Establishments', animalEstablishments);
 
-        // Take a screenshot
+
+        // Combine the data into a single array of objects
+        for (let i = 0; i < animalIds.length; i++) {
+            animalData.push({
+                id: animalIds[i],
+                link: newAnimalLinks[i],
+                race: animalRaces[i],
+                age: animalAges[i],
+                sos: animalSos[i],
+                genders: animalGenders[i],
+                species : animalSpecies[i],
+                links_image : animalImageLinks[i],
+                name: animalNames[i]
+            });
+        }
 
 
-        await page.screenshot({ path: `screenshot_${counter}.png` });
-
-        console.log('Number of animal links:', animalLinks.length);
-
-        const uniqueAnimalLinks = [...new Set(animalLinks)];
-
-        fs.writeFileSync(`links$n{counter}.json`, JSON.stringify(uniqueAnimalLinks, null, 2));
+        // / Save the data to a JSON file
+        
+        
+        fs.writeFileSync(`animal_data_${counter}.json`, JSON.stringify(animalData, null, 2));
+        counter++;
     }
 
     await browser.close();
