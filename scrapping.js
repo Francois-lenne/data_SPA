@@ -1,20 +1,7 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
-
-
 async function run() {
-
-    
-    // create the lists for save all the inormation of the animals
-
-
-    
-    
-    // Launch the browser
-
-
-
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     
@@ -24,7 +11,7 @@ async function run() {
     
     // Accept cookies
     await page.waitForSelector('#gdpr-accept');
-    await page.click('#gdpr-accept'); // Using the ID of the "Accept cookies" button
+    await page.click('#gdpr-accept');
 
     console.log('Cookies accepted');
 
@@ -33,128 +20,70 @@ async function run() {
         await page.evaluate(() => {
             window.scrollBy(0, window.innerHeight);
         });
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds
+        await new Promise(resolve => setTimeout(resolve, 5000));
     }
 
     console.log('Scrolled down');
 
-    // number of animals 
     let seeMoreActive = true;
-    let animalLinks = [];
     let animalData = [];
+    let processedIds = new Set();
     let counter = 0;
 
     while (seeMoreActive) {
-        // Try to click on the "Voir plus" button
-
         counter++;
         try {
             await page.waitForSelector('.c-see-more_link', { timeout: 5000 });
             await page.click('.c-see-more_link');
-
-            // Wait for the new content to load
-            await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 5 seconds
+            await new Promise(resolve => setTimeout(resolve, 5000));
         } catch (error) {
-            // If the "Voir plus" button is not found, it means it's not active
             seeMoreActive = false;
         }
 
-        // Get the href of all <a> elements with a data-animal-id attribute
+        // Get new animal data
+        const newAnimalIds = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-id')));
         const newAnimalLinks = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.href));
-        animalLinks = [...animalLinks, ...newAnimalLinks];
+        const newAnimalRaces = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-race')));
+        const newAnimalNames = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-nom')));
+        const newAnimalGenders = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-gender')));
+        const newAnimalAges = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-age')));
+        const newAnimalSos = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-sos')));
+        const newAnimalSpecies = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-espece')));
+        const newAnimalImageLinks = await page.$$eval('a[data-animal-id] img', elements => elements.map(element => element.getAttribute('src')));
+        const newAnimalEstablishments = await page.$$eval('a.f-miniAnimals_establishment span', elements => elements.map(element => element.textContent));
 
+        console.log(`Iteration ${counter}:`);
+        console.log('New Animal IDs:', newAnimalIds);
+        console.log('New Animal Links:', newAnimalLinks);
+        console.log('New Animal Races:', newAnimalRaces);
+        console.log('New Animal Names:', newAnimalNames);
+        console.log('New Animal Genders:', newAnimalGenders);
+        console.log('New Animal Ages:', newAnimalAges);
+        console.log('New Animal SOS:', newAnimalSos);
+        console.log('New Animal Species:', newAnimalSpecies);
+        console.log('New Animal Image Links:', newAnimalImageLinks);
+        console.log('New Animal Establishments:', newAnimalEstablishments);
 
-
-
-        // get the id of the animals 
-        const animalIds = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-id')));
-
-        console.log('Animal IDs:', animalIds);
-
-        // get the especes of the animals
-
-        const animalRaces = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-race')));
-
-        console.log('Animal Race', animalRaces);
-
-
-
-        // get the names of the animals
-
-        const animalNames = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-nom')));
-
-
-        console.log('Animal Names', animalNames);
-
-
-        // get the gender of the animals
-
-        const animalGenders = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-gender')));
-
-        console.log('Animal Sex', animalGenders);
-
-
-        // get the age of the animals
-
-        const animalAges = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-age')));
-
-        console.log('Animal Age', animalAges);
-
-
-        // get the SOS of the animals 
-
-        const animalSos = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-sos')));
-
-        console.log('Animal SOS', animalSos);
-
-
-
-
-        // get the spacies of the animals
-
-        const animalSpecies = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-espece')));
-
-        console.log('Animal Species', animalSpecies);
-
-
-
-        // get the image of the animals
-
-
-        const animalImageLinks = await page.$$eval('a[data-animal-id] img', elements => elements.map(element => element.getAttribute('src')));
-
-        console.log('Animal Image Links', animalImageLinks);
-
-
-        // get the establishments of the animals 
-        
-
-        const animalEstablishments = await page.$$eval('a.f-miniAnimals_establishment span', elements => elements.map(element => element.textContent));
-
-        console.log('Animal Establishments', animalEstablishments);
-
-
-        // Combine the data into a single array of objects
-        for (let i = 0; i < animalIds.length; i++) {
-            animalData.push({
-                id: animalIds[i],
-                link: newAnimalLinks[i],
-                race: animalRaces[i],
-                age: animalAges[i],
-                sos: animalSos[i],
-                genders: animalGenders[i],
-                species : animalSpecies[i],
-                links_image : animalImageLinks[i],
-                name: animalNames[i]
-            });
+        // Process new animals
+        for (let i = 0; i < newAnimalIds.length; i++) {
+            if (!processedIds.has(newAnimalIds[i])) {
+                processedIds.add(newAnimalIds[i]);
+                animalData.push({
+                    id: newAnimalIds[i],
+                    link: newAnimalLinks[i],
+                    race: newAnimalRaces[i],
+                    age: newAnimalAges[i],
+                    sos: newAnimalSos[i],
+                    genders: newAnimalGenders[i],
+                    species: newAnimalSpecies[i],
+                    links_image: newAnimalImageLinks[i],
+                    name: newAnimalNames[i],
+                    establishment: newAnimalEstablishments[i]
+                });
+            }
         }
 
-
-        // / Save the data to a JSON file
-        
-        
         fs.writeFileSync(`animal_data_${counter}.json`, JSON.stringify(animalData, null, 2));
-        counter++;
     }
 
     await browser.close();
