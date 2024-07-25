@@ -82,7 +82,7 @@ async function run() {
 
     }
 
-    console.log('Scraping finished');
+    console.log('Scraping finish');
     const timestamp = new Date().getTime();
     fs.writeFileSync(`animal_data_${timestamp}.json`, JSON.stringify(animalData, null, 2));
 
