@@ -49,7 +49,6 @@ async function run() {
         const newAnimalAges = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-age')));
         const newAnimalSos = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-sos')));
         const newAnimalSpecies = await page.$$eval('a[data-animal-id]', elements => elements.map(element => element.getAttribute('data-animal-espece')));
-        const newAnimalImageLinks = await page.$$eval('a[data-animal-id] img', elements => elements.map(element => element.getAttribute('src')));
         const newAnimalEstablishments = await page.$$eval('a.f-miniAnimals_establishment span', elements => elements.map(element => element.textContent));
 
         console.log(`Iteration ${counter}:`);
@@ -61,7 +60,6 @@ async function run() {
         console.log('New Animal Ages:', newAnimalAges);
         console.log('New Animal SOS:', newAnimalSos);
         console.log('New Animal Species:', newAnimalSpecies);
-        console.log('New Animal Image Links:', newAnimalImageLinks);
         console.log('New Animal Establishments:', newAnimalEstablishments);
 
         // Process new animals
@@ -76,15 +74,17 @@ async function run() {
                     sos: newAnimalSos[i],
                     genders: newAnimalGenders[i],
                     species: newAnimalSpecies[i],
-                    links_image: newAnimalImageLinks[i],
                     name: newAnimalNames[i],
                     establishment: newAnimalEstablishments[i]
                 });
             }
         }
 
-        fs.writeFileSync(`animal_data_${counter}.json`, JSON.stringify(animalData, null, 2));
     }
+
+    console.log('Scraping finished');
+    const timestamp = new Date().getTime();
+    fs.writeFileSync(`animal_data_${timestamp}.json`, JSON.stringify(animalData, null, 2));
 
     await browser.close();
 }
