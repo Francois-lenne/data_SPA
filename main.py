@@ -44,7 +44,7 @@ for i in range(1, nbr_pages+1):
     # Ajouter les résultats au DataFrame global
     df_global = df_global._append(df_animals, ignore_index=True)
     
-    print(df_animals)
+
     print(f"La page {i} a été traitée")
 
 # Afficher le DataFrame global en dehors de la boucle
@@ -53,3 +53,4 @@ print(df_global)
 
 
 df_global.to_csv("animals2.csv", index=False)
+
