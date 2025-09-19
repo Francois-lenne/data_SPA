@@ -1,8 +1,6 @@
-import json
 import pandas as pd
 import requests 
 import time
-import asyncio
 
 
 def get_extract_parameter():
@@ -25,7 +23,7 @@ def get_extract_parameter():
     return nbr_pages, nbr_animals
 
 
-async def extract_data():
+def extract_data() -> pd.DataFrame:
     """
     Extract the data from the API and store it in a pandas DataFrame.
 
@@ -34,24 +32,30 @@ async def extract_data():
     # Get the number of pages and animals
     nbr_pages, nbr_animals = get_extract_parameter()
 
-    # List to store DataFrames from each page
-    dataframes = []
+    # DataFrame global pour stocker tous les résultats
+    df_global = pd.DataFrame()
 
-    for i in range(1, nbr_pages + 1):
-        url = f"https://www.la-spa.fr/app/wp-json/spa/v1/animals/search/?api=1&seed=1&page={i}"
+    for i in range(1, nbr_pages+1):
+        print(i) 
+        url = f"https://www.la-spa.fr/app/wp-json/spa/v1/animals/search/?api=1&paged={i}&seed=283503395171543"
         response = requests.get(url)
         data = response.json()
+
+        time.sleep(0.4)  # Pause de 0.4 seconde pour respecter les limites de l'API
+        # Convertir les résultats des animaux en DataFrame
         df_animals = pd.DataFrame(data['results'])
-
-        await asyncio.sleep(1)  # Pause to avoid overloading the API
-
-        # Add the DataFrame to the list
-        dataframes.append(df_animals)
         
-        print(f"Page {i} has been processed")
+        # Ajouter la colonne 'page_api' avec la valeur de 'i'
+        df_animals['page_api'] = i
+
+        print(df_animals)
     
-    # Concatenate all DataFrames at once (more efficient)
-    df_global = pd.concat(dataframes, ignore_index=True)
+        # Ajouter les résultats au DataFrame global
+        df_global = df_global._append(df_animals, ignore_index=True)
+    
+        print(f"La page {i} a été traitée")
+
+    print(len(df_global), "animals have been loaded into the DataFrame.")
     
     if df_global.empty:
         raise ValueError("The DataFrame is empty. Check the API response.")
@@ -112,13 +116,13 @@ def check_data(df):
         print(f"  {col}: {dtype}")
 
 
-async def main():
+def main():
     """
     Main function to orchestrate the data extraction and validation.
     """
     print("Starting data extraction...")
     
-    df = await extract_data()
+    df = extract_data()
     
     print("Validating data...")
     check_data(df)
@@ -128,5 +132,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    # Run the async main function
-    asyncio.run(main())
+    main()
