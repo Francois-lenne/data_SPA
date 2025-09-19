@@ -2,3 +2,7 @@
 .DS_Store
 *.tmp
 spa/
+.terraform/
+.terraform.*
+*.tfstate
+*.backup
