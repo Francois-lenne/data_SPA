@@ -1,17 +1,49 @@
 import requests
+import pandas as pd
+from datetime import datetime
+import gcsfs
 
-API_URL = "https://www.la-spa.fr/app/wp-json/spa/v1/establishments/"
-PARAMS = {
-    "api": "1",
-    "types": "maisons-spa,refuges",
-    "lat": "",
-    "lng": ""
-}
 
-def fetch_refuges_data():
+
+def fetch_refuges_data() -> pd.DataFrame:
+    """
+
+    Fetch data about refuges from the SPA API and return it as a pandas DataFrame.
+    :return: pandas DataFrame containing the refuges data + metadata for the SCD
+    """
+    # Define the API endpoint and parameters
+    API_URL = "https://www.la-spa.fr/app/wp-json/spa/v1/establishments/"
+    PARAMS = {
+        "api": "1",
+        "types": "maisons-spa,refuges",
+        "lat": "",
+        "lng": ""
+    }
+
+    # Make the API request and handle potential errors
     response = requests.get(API_URL, params=PARAMS)
     response.raise_for_status()
-    return response.json()
+    response_data = response.json()
+
+    # Create DataFrame from the response data
+    df = pd.DataFrame(response_data["items"], columns=["ID", "name", "address", "latitude", "longitude", "opening_hours"])
+
+    # Add metadata columns
+    df["load_timestamp"] = datetime.now().isoformat()
+
+
+    # Save the DataFrame to a Parquet file in Google Cloud Storage
+    fs = gcsfs.GCSFileSystem(project=project_id)
+    df.to_parquet(
+        f"gs://{bucket_name}/{filename}",
+        engine="fastparquet",
+        filesystem=fs
+    )
+
+    return df
+
+
+
 
 if __name__ == "__main__":
     data = fetch_refuges_data()
