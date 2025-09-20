@@ -1,8 +1,11 @@
 *.csv
 .DS_Store
 *.tmp
-spa/
 .terraform/
 .terraform.*
 *.tfstate
 *.backup
+*.lock
+*.toml
+.python-version
+.env

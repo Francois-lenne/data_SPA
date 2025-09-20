@@ -2,8 +2,10 @@ import requests
 import pandas as pd
 from datetime import datetime
 import gcsfs
+import os
+from dotenv import load_dotenv
 
-
+load_dotenv()
 
 def fetch_refuges_data() -> pd.DataFrame:
     """
@@ -33,11 +35,13 @@ def fetch_refuges_data() -> pd.DataFrame:
 
 
     # Save the DataFrame to a Parquet file in Google Cloud Storage
-    fs = gcsfs.GCSFileSystem(project=project_id)
+    fs = gcsfs.GCSFileSystem()
+    GCP_BUCKET_NAME = os.environ.get("GCP_BUCKET_NAME")
+    if not GCP_BUCKET_NAME:
+        raise ValueError("Environment variable 'GCP_BUCKET_NAME' is not set.")
     df.to_parquet(
-        f"gs://{bucket_name}/{filename}",
-        engine="fastparquet",
-        filesystem=fs
+        f"gs://{GCP_BUCKET_NAME}/raw/refuges/refuges_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.parquet",
+        engine="pyarrow"
     )
 
     return df
