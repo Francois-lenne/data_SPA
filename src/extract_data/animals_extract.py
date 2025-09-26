@@ -46,12 +46,13 @@ def extract_data() -> pd.DataFrame:
         response = requests.get(url)
         data = response.json()
 
-        time.sleep(0.2)  # Pause de 0.2 seconde pour respecter les limites de l'API
+        time.sleep(0.4)  # Pause de 0.4 seconde pour respecter les limites de l'API
         # Convertir les résultats des animaux en DataFrame
         df_animals = pd.DataFrame(data['results'])
         
         # Ajouter la colonne 'page_api' avec la valeur de 'i'
         df_animals['page_api'] = i
+
     
         # Ajouter les résultats au DataFrame global
         df_global = df_global._append(df_animals, ignore_index=True)

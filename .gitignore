@@ -9,3 +9,4 @@
 *.toml
 .python-version
 .env
+.vscode/
