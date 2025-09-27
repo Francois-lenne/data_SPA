@@ -94,6 +94,21 @@ resource "google_storage_bucket_object" "folders" {
   content = " "
 }
 
+# Dataset BigQuery pour les données SPA
+resource "google_bigquery_dataset" "spa_dataset" {
+  dataset_id    = "SPA"
+  friendly_name = "SPA Data Dataset"
+  description   = "Dataset pour stocker e traiter les données issus de l'etraction des données SPA"
+  location      = "EU"
+  
+  # Labels pour organisation
+  labels = {
+    environnement = "dev"
+    projet        = "data-spa"
+    type          = "bigquery"
+  }
+}
+
 
 # Output
 output "bucket_name" {
@@ -106,4 +121,10 @@ output "bucket_name" {
 output "created_folders" {
   description = "Dossiers créés dans le bucket"
   value       = var.folder_structure
+}
+
+output "dataset_name" {
+  description = "Nom du dataset BigQuery créé"
+  value       = google_bigquery_dataset.spa_dataset.dataset_id
+  
 }
