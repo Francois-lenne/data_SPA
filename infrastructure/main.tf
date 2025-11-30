@@ -110,6 +110,77 @@ resource "google_bigquery_dataset" "spa_dataset" {
 }
 
 
+
+# create the tavble for the refuges data
+
+resource "google_bigquery_table" "bronze_refuges" {
+  dataset_id = google_bigquery_dataset.spa_dataset.dataset_id
+  table_id   = "bronze_refuges"
+
+  deletion_protection = false
+
+
+  schema = jsonencode([
+    {
+      name = "ID"
+      type = "STRING"
+      mode = "REQUIRED"
+      description = "ID of the refuge"
+    },
+    {
+      name = "name"
+      type = "STRING"
+      mode = "NULLABLE"
+      description = "Name of the SPA refuge"
+    },
+    {
+      name = "address"
+      type = "STRING"
+      mode = "NULLABLE"
+      description = "French address of the refuge"
+    },
+    {
+      name = "latitude"
+      type = "FLOAT"
+      mode = "NULLABLE"
+      description = "Latitude"
+    },
+    {
+      name = "longitude"
+      type = "FLOAT"
+      mode = "NULLABLE"
+      description = "Longitude"
+    },
+    {
+      name = "opening_hours"
+      type = "STRING"
+      mode = "NULLABLE"
+      description = "Opening hours"
+    },
+    {
+      name = "load_timestamp"
+      type = "TIMESTAMP"
+      mode = "REQUIRED"
+      description = "Timestamp of data load"
+    },
+    {
+      name = "source_file"
+      type = "STRING"
+      mode = "REQUIRED"
+      description = "Source file name from Cloud Storage"
+    }
+
+  ])
+
+  # Labels pour organisation
+  labels = {
+    environnement = "dev"
+    projet        = "data-spa"
+    source        = "refuges"
+    layer         = "bronze"
+  }
+}
+
 # Output
 output "bucket_name" {
   description = "Nom du bucket créé"
